@@ -46,10 +46,6 @@ class TitleTest < ActiveSupport::TestCase
     assert_equal :has_many, Title.reflect_on_association(:principals).macro
   end
 
-  test "has many crews" do
-    assert_equal :has_many, Title.reflect_on_association(:crews).macro
-  end
-
   test "has many title_genres" do
     assert_equal :has_many, Title.reflect_on_association(:title_genres).macro
   end
@@ -58,5 +54,13 @@ class TitleTest < ActiveSupport::TestCase
     reflection = Title.reflect_on_association(:genres)
     assert_equal :has_many, reflection.macro
     assert_equal :title_genres, reflection.options[:through]
+  end
+
+  test "has many directors" do
+    assert_equal :has_many, Title.reflect_on_association(:directors).macro
+  end
+
+  test "has many writers" do
+    assert_equal :has_many, Title.reflect_on_association(:writers).macro
   end
 end

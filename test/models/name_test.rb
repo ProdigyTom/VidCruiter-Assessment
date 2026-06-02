@@ -24,4 +24,22 @@ class NameTest < ActiveSupport::TestCase
     reflection = Name.reflect_on_association(:principals)
     assert_equal "name_id", reflection.foreign_key.to_s
   end
+
+  test "has many directors" do
+    assert_equal :has_many, Name.reflect_on_association(:directors).macro
+  end
+
+  test "has many writers" do
+    assert_equal :has_many, Name.reflect_on_association(:writers).macro
+  end
+
+  test "directors association uses name_id as foreign key" do
+    reflection = Name.reflect_on_association(:directors)
+    assert_equal "name_id", reflection.foreign_key.to_s
+  end
+
+  test "writers association uses name_id as foreign key" do
+    reflection = Name.reflect_on_association(:writers)
+    assert_equal "name_id", reflection.foreign_key.to_s
+  end
 end

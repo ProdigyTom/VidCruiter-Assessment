@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_02_150343) do
-  create_table "crew", force: :cascade do |t|
-    t.text "title_id"
-    t.text "directors"
-    t.text "writers"
+ActiveRecord::Schema[7.2].define(version: 2026_06_02_152449) do
+  create_table "directors", force: :cascade do |t|
+    t.string "title_id", null: false
+    t.string "name_id", null: false
+    t.index ["title_id", "name_id"], name: "index_directors_on_title_id_and_name_id", unique: true
   end
 
   create_table "genres", force: :cascade do |t|
@@ -56,5 +56,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_02_150343) do
     t.text "original_title"
     t.integer "start_year"
     t.integer "runtime"
+  end
+
+  create_table "writers", force: :cascade do |t|
+    t.string "title_id", null: false
+    t.string "name_id", null: false
+    t.index ["title_id", "name_id"], name: "index_writers_on_title_id_and_name_id", unique: true
   end
 end
