@@ -70,6 +70,52 @@ class TitlesControllerTest < ActionDispatch::IntegrationTest
     assert_includes ids, "tt_ctrl_1"
   end
 
+  # --- Show ---
+
+  test "GET /titles/:id returns 200 with full title detail" do
+    name = Name.create!(id: "nm_show_1", primary_name: "Jane Director")
+    Director.create!(title: @title, name: name)
+    Writer.create!(title: @title, name: name)
+
+    get "/titles/#{@title.id}"
+    assert_response :ok
+
+    body = JSON.parse(response.body)
+    assert_equal "tt_ctrl_1", body["id"]
+    assert_equal "Filter Test Movie", body["title"]
+    assert_equal 1999, body["year"]
+    assert_equal 120, body["runtime"]
+    assert_includes body["genres"], @genre.name
+    assert_equal 8.0, body["rating"]
+    assert_kind_of Array, body["writers"]
+    assert_kind_of Array, body["directors"]
+    assert_kind_of Array, body["cast"]
+    assert_kind_of Array, body["principals"]
+    assert_equal "nm_show_1", body["directors"].first["id"]
+    assert_equal "Jane Director", body["directors"].first["name"]
+  end
+
+  test "GET /titles/:id with cast includes only actors and actresses" do
+    actor   = Name.create!(id: "nm_show_actor",   primary_name: "Actor Person")
+    non_actor = Name.create!(id: "nm_show_editor", primary_name: "Editor Person")
+    Principal.create!(title: @title, name: actor,     ordering: 1, category: "actor",  characters: '["Hero"]')
+    Principal.create!(title: @title, name: non_actor, ordering: 2, category: "editor", characters: nil)
+
+    get "/titles/#{@title.id}"
+    assert_response :ok
+
+    body = JSON.parse(response.body)
+    cast_ids = body["cast"].map { |c| c["id"] }
+    assert_includes cast_ids, "nm_show_actor"
+    assert_not_includes cast_ids, "nm_show_editor"
+    assert_equal ["Hero"], body["cast"].first["role"]
+  end
+
+  test "GET /titles/:id returns 404 for unknown id" do
+    get "/titles/tt_does_not_exist"
+    assert_response :not_found
+  end
+
   # --- Index: response shape ---
 
   test "GET /titles returns the correct response shape" do
