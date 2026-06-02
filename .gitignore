@@ -31,3 +31,10 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# SQLite test databases (base file + parallel worker copies created by Rails parallelization)
+/db/movies-test.db*
+
+# SQLite WAL and shared-memory sidecar files generated during normal DB access
+/db/*.db-shm
+/db/*.db-wal

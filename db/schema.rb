@@ -10,11 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 0) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_02_135626) do
   create_table "crew", force: :cascade do |t|
     t.text "title_id"
     t.text "directors"
     t.text "writers"
+  end
+
+  create_table "genres", force: :cascade do |t|
+    t.string "name", null: false
+    t.index ["name"], name: "index_genres_on_name", unique: true
   end
 
   create_table "names", id: :text, force: :cascade do |t|
@@ -38,6 +43,12 @@ ActiveRecord::Schema[7.2].define(version: 0) do
     t.text "title_id"
     t.float "average_rating"
     t.integer "number_of_votes"
+  end
+
+  create_table "title_genres", force: :cascade do |t|
+    t.string "title_id", null: false
+    t.integer "genre_id", null: false
+    t.index ["title_id", "genre_id"], name: "index_title_genres_on_title_id_and_genre_id", unique: true
   end
 
   create_table "titles", id: :text, force: :cascade do |t|
