@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_02_135626) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_02_150343) do
   create_table "crew", force: :cascade do |t|
     t.text "title_id"
     t.text "directors"
@@ -56,6 +56,5 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_02_135626) do
     t.text "original_title"
     t.integer "start_year"
     t.integer "runtime"
-    t.text "genres"
   end
 end
