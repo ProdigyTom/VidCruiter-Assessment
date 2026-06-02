@@ -202,6 +202,7 @@ Ten migrations were written to clean and normalise the database. They were inten
 - **Rate limiting** — no rate limiting is in place. In production, `rack-attack` would be the obvious addition.
 - **Caching** — person detail responses (`/writers/:id`, `/directors/:id`, etc.) are expensive joins that change infrequently. HTTP cache headers or a Redis-backed fragment cache would help significantly at scale.
 - **API versioning** — namespacing routes under `/v1` from the start would make future breaking changes easier to manage.
+- **Create/Update Endpoints** - In order to keep this movie database up to date having a way to programatically create new data or update existing data would be essential.
 
 **Technical improvements:**
 
