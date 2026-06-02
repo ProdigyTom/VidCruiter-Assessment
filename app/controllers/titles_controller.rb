@@ -1,4 +1,6 @@
 class TitlesController < ApplicationController
+  PAGE_SIZE = 50
+
   before_action :set_title, only: [ :writers, :directors, :cast, :principals ]
 
   # GET /titles
@@ -17,7 +19,22 @@ class TitlesController < ApplicationController
     titles = titles.by_genre(active_filters[:genre])     if active_filters[:genre]
     titles = titles.by_rating(active_filters[:rating])   if active_filters[:rating]
 
-    render json: titles.includes(:genres, :rating).map { |t| title_summary(t) }
+    page        = [ params[:page].to_i, 1 ].max
+    total       = titles.count
+    total_pages = (total.to_f / PAGE_SIZE).ceil
+
+    results = titles.includes(:genres, :rating)
+                    .offset((page - 1) * PAGE_SIZE)
+                    .limit(PAGE_SIZE)
+                    .map { |t| title_summary(t) }
+
+    render json: {
+      total_pages: total_pages,
+      page: page,
+      total_result: total,
+      result_count: results.length,
+      titles: results
+    }
   end
 
   # GET /titles/:id
