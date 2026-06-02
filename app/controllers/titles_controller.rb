@@ -75,26 +75,4 @@ class TitlesController < ApplicationController
     render json: { error: "Title not found" }, status: :not_found
   end
 
-  def title_summary(title)
-    {
-      id: title.id,
-      title: title.primary_title,
-      year: title.start_year,
-      runtime: title.runtime,
-      genres: title.genres.map(&:name),
-      rating: title.rating&.average_rating
-    }
-  end
-
-  def name_summary(name)
-    { id: name.id, name: name.primary_name }
-  end
-
-  def principal_entry(principal)
-    {
-      id: principal.name.id,
-      name: principal.name.primary_name,
-      role: principal.characters.present? ? JSON.parse(principal.characters) : []
-    }
-  end
 end
