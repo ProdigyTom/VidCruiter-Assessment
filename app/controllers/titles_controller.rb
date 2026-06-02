@@ -48,18 +48,23 @@ class TitlesController < ApplicationController
 
   # GET /titles/:id/writers
   def writers
+    render json: @title.writers.includes(:name).map { |w| name_summary(w.name) }
   end
 
   # GET /titles/:id/directors
   def directors
+    render json: @title.directors.includes(:name).map { |d| name_summary(d.name) }
   end
 
   # GET /titles/:id/cast
   def cast
+    people = @title.principals.includes(:name).where(category: %w[actor actress])
+    render json: people.map { |p| principal_entry(p) }
   end
 
   # GET /titles/:id/principals
   def principals
+    render json: @title.principals.includes(:name).map { |p| principal_entry(p) }
   end
 
   private
