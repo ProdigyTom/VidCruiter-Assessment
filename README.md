@@ -60,6 +60,30 @@ The API will be available at `http://localhost:3000`.
 
 ---
 
+## Running with Docker
+
+If you'd prefer not to install a Ruby toolchain locally, the API can be built and run entirely with Docker. See [DOCKER.md](./DOCKER.md) for the full commands.
+
+**Quick start:**
+
+```bash
+docker build -t movies-api .
+docker run --rm -p 4000:4000 -v "$(pwd)/db/movies.db:/app/db/movies.db" movies-api
+# or: docker compose up --build
+```
+
+The API will be available at `http://localhost:4000`.
+
+**Key decisions:**
+
+- **Multi-stage build** — the `Dockerfile` uses two stages. The `build` stage installs `build-essential` and `libsqlite3-dev` (~200 MB of tooling) to compile the `sqlite3` native gem. The `runtime` stage starts from a fresh `ruby:3.3.6-slim` base and only installs `libsqlite3-0` (the ~1 MB shared runtime library), then copies the pre-compiled gems across. The final shipped image never contains a compiler.
+- **`ruby:3.3.6-slim` over Alpine** — slim uses glibc, which avoids ABI compatibility issues when linking the compiled `sqlite3.so` against the system SQLite library. Alpine uses musl and can cause subtle native-gem failures.
+- **Bind-mounted database** — `movies.db` is not baked into the image. It is mounted from the host at runtime (`-v ./db/movies.db:/app/db/movies.db`) so that migration writes and any updates are persisted back to disk and survive container restarts.
+- **`SECRET_KEY_BASE`** — Rails requires this env var to be set in production mode (it's used to sign session cookies and encrypted credentials). This API has no sessions or cookies, so it's never actually used — but Rails will refuse to boot without it. A static placeholder is hardcoded in the `Dockerfile` for convenience. In a real deployment it would be generated with `bundle exec rails secret` and injected at runtime from a secrets manager (AWS Secrets Manager, GCP Secret Manager, Vault, etc.) — never committed to source.
+- **`force_ssl` disabled** — Rails 7.2 enables `config.force_ssl = true` by default in production. This redirects all HTTP requests to HTTPS, which causes a Puma SSL parse error when there is no TLS terminator in front of the server. It is disabled in `config/environments/production.rb` for the local Docker setup. In a real deployment it should be re-enabled with nginx or a load balancer handling TLS termination.
+
+---
+
 ## Running Tests
 
 The project has two test suites.
@@ -188,6 +212,17 @@ Ten migrations were written to clean and normalise the database. They were inten
 - Wrote RSpec request specs for all 10 endpoints using real preconfigured database records.
 - Each spec uses `let!` blocks to create isolated test data (rolled back after each example via transactional fixtures) and `context` blocks to separate happy path, edge cases, and 404 scenarios.
 - Response shape, filter behaviour, cast filtering, pagination metadata, and credit grouping are all explicitly asserted.
+
+### Problem 6 — Dockerize the API
+
+- Added a multi-stage `Dockerfile` at the root of `movies-api/`. The `build` stage installs compile-time dependencies (`build-essential`, `libsqlite3-dev`) and bundles the production gem set; the `runtime` stage starts from a clean base, copies across the pre-compiled gems and app source, and installs only `libsqlite3-0` (~1 MB). The final image contains no compiler.
+- Used `ruby:3.3.6-slim` (glibc) rather than Alpine (musl) to avoid native-gem ABI issues with the `sqlite3` gem.
+- `movies.db` is not baked into the image — it is bind-mounted at runtime so writes survive container restarts.
+- Added `docker-compose.yml` as a convenience wrapper.
+- Added `DOCKER.md` with exact build/run commands for both plain Docker and Compose, plus example curl requests.
+- Added a `production` section to `database.yml` (required for `RAILS_ENV=production`).
+- Added `entrypoint.sh` which runs `db:migrate` before starting Puma — idempotent, so safe to run on every container start against an already-migrated database.
+- `SECRET_KEY_BASE` is hardcoded as a static placeholder for convenience. In a real deployment it would be generated with `bundle exec rails secret` and injected from a secrets manager.
 
 ---
 

@@ -19,3 +19,7 @@ development:
 test:
   <<: *default
   database: db/movies-test.db
+
+production:
+  <<: *default
+  database: db/movies.db
