@@ -41,8 +41,9 @@ Rails.application.configure do
   # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
   # config.assume_ssl = true
 
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # force_ssl is intentionally disabled: the Docker setup serves plain HTTP on localhost.
+  # In a real deployment this would be re-enabled with a TLS terminator (nginx, load balancer) in front.
+  config.force_ssl = false
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }

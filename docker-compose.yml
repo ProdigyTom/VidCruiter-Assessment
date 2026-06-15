@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      # Bind-mount the database file so writes (e.g. from db:migrate) survive
+      # container restarts. The path is relative to this docker-compose.yml.
+      - ./db/movies.db:/app/db/movies.db
+    environment:
+      RAILS_ENV: production
+      PORT: "4000"
+      RAILS_LOG_TO_STDOUT: "1"
+      # Override with the output of: bundle exec rails secret
+      SECRET_KEY_BASE: replace_this_with_the_output_of_bundle_exec_rails_secret
